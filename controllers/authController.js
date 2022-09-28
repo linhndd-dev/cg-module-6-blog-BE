@@ -62,15 +62,10 @@ const authController = {
       const newUser = new User({ username, email, password: hashedPassword });
       await newUser.save();
 
-      // Done created, return token
-      const accessToken = jwt.sign(
-        { userId: newUser._id },
-        process.env.ACCESS_TOKEN_SECRET
-      );
+      // Done created
       return res.status(200).json({
         success: true,
         message: "User created successfully.",
-        accessToken,
       });
     } catch (error) {
       console.log(error);
