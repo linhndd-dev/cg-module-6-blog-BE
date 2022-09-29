@@ -121,6 +121,7 @@ const authController = {
         success: true,
         message: "User logged in successfully.",
         accessToken,
+        idUser: user._id
       });
     } catch (error) {
       console.log(error);
