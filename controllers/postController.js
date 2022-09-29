@@ -5,7 +5,6 @@ const postController = {
         try {
             let id = req.params.id;
             let posts = await Post.find({author: id})
-            console.log(posts);
             res.status(200).json(posts);
         }catch {
             res.status(404).json();
