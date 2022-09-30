@@ -1,24 +1,38 @@
 const Post = require("../models/Post");
 
 const postController = {
+  // GET ALL
   getMyPosts: async (req, res) => {
     try {
-      let id = req.userId;
-      let posts = await Post.find({ author: id });
+      let userId = req.userId;
+      let posts = await Post.find({ author: userId });
       res.status(200).json({
         success: true,
-        message: "Post retrieved successfully.",
         posts,
       });
     } catch {
-      res.status(404).json({
+      return res.status(500).json({
         success: false,
-        message: "Cannot find post.",
+        message: "Internal server error.",
       });
     }
   },
 
   createMyPost: async (req, res) => {
+    //Check missing required input
+    const { title, content } = req.body;
+    if (!title) {
+      return res.status(400).json({
+        sucess: false,
+        message: "Title is required.",
+      });
+    }
+    if (!content) {
+      return res.status(400).json({
+        sucess: false,
+        message: "Content is required.",
+      });
+    }
     try {
       let post = req.body;
       let userId = req.userId;
@@ -30,12 +44,14 @@ const postController = {
         post,
       });
     } catch (err) {
-      res.status(404).json({
+      return res.status(500).json({
         success: false,
-        message: "Cannot find post.",
+        message: "Internal server error.",
       });
     }
   },
+
+  editMyPost: async (req, res) => {},
 };
 
 module.exports = postController;

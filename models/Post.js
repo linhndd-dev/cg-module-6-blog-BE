@@ -10,10 +10,6 @@ const PostSchema = new Schema({
   summary: {
     type: String,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
   content: {
     type: String,
     required: true,
@@ -23,12 +19,23 @@ const PostSchema = new Schema({
   },
   accessModified: {
     type: String,
-    enum: ["Public", "Private"],
     default: "Public",
+  },
+  like: {
+    type: Number,
+    default: 0,
+  },
+  comment: {
+    type: Number,
+    default: 0,
   },
   author: {
     type: Schema.Types.ObjectId,
     ref: "users",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

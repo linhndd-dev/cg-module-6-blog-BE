@@ -1,10 +1,10 @@
 const express = require("express");
 const postController = require("../controllers/postController");
 const router = express.Router();
-const auth = require("../middlewares/auth");
+const verifyToken = require("../middlewares/auth");
 
-router.use(auth);
-router.get("/", postController.getMyPosts);
-router.post("/", postController.createMyPost);
+router.get("/", verifyToken, postController.getMyPosts);
+router.post("/", verifyToken, postController.createMyPost);
+router.put("/:id", verifyToken, postController.editMyPost);
 
 module.exports = router;
