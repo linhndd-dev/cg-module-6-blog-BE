@@ -3,7 +3,7 @@ const Post = require("../models/Post");
 const postController = {
     getAllPostByIdUser: async(req, res) => {
         try {
-            let id = req.params.id;
+            let id = req.userId;
             let posts = await Post.find({author: id})
             res.status(200).json(posts);
         }catch {
@@ -14,7 +14,7 @@ const postController = {
     createPost: async(req, res) => {
         try {
             let post = req.body;
-            let id = req.params.id
+            let id = req.userId;
             post.author = id;
             await Post.create(post);
             res.status(200).json(post);

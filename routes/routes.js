@@ -5,5 +5,5 @@ const authRouter = require("./authRouter");
 const postRouter = require("./postRouter");
 
 router.use("/auth", authRouter);
-router.use('/post', postRouter)
+router.use("/post", postRouter)
 module.exports = router;
