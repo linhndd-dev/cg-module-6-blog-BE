@@ -1,7 +1,7 @@
 const Post = require("../models/Post");
 
 const postController = {
-    getPosstById: async(req, res) => {
+    getAllPostByIdUser: async(req, res) => {
         try {
             let id = req.params.id;
             let posts = await Post.find({author: id})

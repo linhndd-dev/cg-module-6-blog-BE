@@ -4,7 +4,7 @@ const router = express.Router();
 const auth = require("../middlewares/auth")
 
 router.use(auth);
-router.get("/:id",postController.getAllPostByIdU);
-router.post("/:id",postController.createPost);
+router.get("/:idUser",postController.getAllPostByIdUser);
+router.post("/:idUser",postController.createPost);
 
 module.exports = router;
