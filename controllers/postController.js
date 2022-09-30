@@ -5,9 +5,7 @@ const postController = {
   getMyPosts: async (req, res) => {
     try {
       let userId = req.userId;
-      let posts = await Post.find({ author: userId }).populate("author", [
-        "username",
-      ]);
+      let posts = await Post.find({ author: userId });
       res.status(200).json({
         success: true,
         posts,
