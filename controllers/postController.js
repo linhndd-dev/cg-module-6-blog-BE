@@ -81,7 +81,7 @@ const postController = {
         postUpdateCondition,
         updatedPost,
         { new: true }
-      ).populate("author", ["username"]);
+      );
 
       // User not authorised to update post or post not found
       if (!updatedPost) {
