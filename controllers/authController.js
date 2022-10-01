@@ -5,12 +5,6 @@ const jwt = require("jsonwebtoken");
 
 const authController = {
   register: async (req, res) => {
-    //This is RegExp
-    const passwordRegex = new RegExp(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/);
-    const emailRegex = new RegExp(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
-
     const { username, password, email } = req.body;
 
     // Check for missing fields
@@ -18,23 +12,6 @@ const authController = {
       return res.status(400).json({
         success: false,
         message: "Missing required parameter(s)",
-      });
-    }
-
-    // Check RegExp password
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Password must have minimum eight characters, and contains at least one letter and one number",
-      });
-    }
-
-    // Check RegExp password
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "This email is not valid",
       });
     }
 
@@ -79,7 +56,6 @@ const authController = {
   login: async (req, res) => {
     const { username, password } = req.body;
 
-    // Check for missing fields
     if (!username || !password) {
       return res.status(400).json({
         success: false,
@@ -116,6 +92,7 @@ const authController = {
         success: true,
         message: "User logged in successfully.",
         accessToken,
+        idUser: user._id
       });
     } catch (error) {
       console.log(error);
