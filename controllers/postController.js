@@ -131,6 +131,22 @@ const postController = {
       });
     }
   },
+  getMyPostsById: async (req, res) => {
+      try {
+      let id = req.params.id;
+      let post = await Post.find({_id: id});
+      res.status(200).json({
+          success: true,
+          post,
+      });
+      } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+          success: false,
+          message: "Internal server error.",
+      });
+      }
+  },
 };
 
 module.exports = postController;
