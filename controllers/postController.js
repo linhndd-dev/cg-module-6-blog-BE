@@ -1,8 +1,24 @@
 const Post = require("../models/Post");
 
 const postController = {
-  // GET ALL
-  getMyPosts: async (req, res) => {
+  // LẤY POST GÁN PUBLIC MÀ KHÔNG CÓ TOKEN
+  getAllPublicPosts: async (req, res) => {
+    try {
+      let posts = await Post.find({ accessModified: "Public" });
+      return res.status(200).json({
+        success: true,
+        posts,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+  // LẤY POST CỦA 1 USER CÓ ID
+  getAllPostsByUserId: async (req, res) => {
     try {
       let userId = req.userId;
       let posts = await Post.find({ author: userId });
