@@ -26,7 +26,7 @@ const postController = {
   getAllPostsByUserId: async (req, res) => {
     const { page} = req.query;
     try {
-      let userId = req.userId;
+      let userId = req.params.userId;
       const limit = 10;
       const startIndex = (Number(page) - 1) * limit;
       const total = await Post.countDocuments({author: userId})
@@ -64,7 +64,7 @@ const postController = {
     }
     try {
       let post = req.body;
-      let userId = req.userId;
+      let userId = req.params.userId;
       post.author = userId;
       await Post.create(post);
       res.status(200).json({
@@ -102,7 +102,7 @@ const postController = {
       let updatedPost = req.body;
 
       // Check for permission to update
-      const postUpdateCondition = { _id: req.params.id, author: req.userId };
+      const postUpdateCondition = { _id: req.params.id, author: req.params.userId };
 
       updatedPost = await Post.findByIdAndUpdate(
         postUpdateCondition,
@@ -134,7 +134,7 @@ const postController = {
   // DELETE A POST
   deleteMyPost: async (req, res) => {
     try {
-      const postDeleteCondition = { _id: req.params.id, author: req.userId };
+      const postDeleteCondition = { _id: req.params.id, author: req.params.userId };
       const deletedPost = await Post.findOneAndDelete(postDeleteCondition);
 
       // User not authorised to update post or post not found
