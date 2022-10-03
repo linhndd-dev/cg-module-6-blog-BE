@@ -3,28 +3,39 @@ const Post = require("../models/Post");
 const postController = {
   // LẤY POST GÁN PUBLIC MÀ KHÔNG CÓ TOKEN
   getAllPublicPosts: async (req, res) => {
+    const { page} = req.query;
     try {
-      let posts = await Post.find({ accessModified: "Public" });
+      const limit = 3;
+      const startIndex = (Number(page) - 1) * limit;
+      const total = await Post.countDocuments({accessModified: "Public"})
+      let posts = await Post.find({ accessModified: "Public" }).limit(limit).skip(startIndex);
       return res.status(200).json({
-        success: true,
-        posts,
+        posts: posts,
+        currentPage: Number(page),
+        totalPost: total,
+        numberOfPages: Math.ceil(total / limit)
       });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
-        success: false,
         message: "Internal server error.",
       });
     }
   },
   // LẤY POST CỦA 1 USER CÓ ID
   getAllPostsByUserId: async (req, res) => {
+    const { page} = req.query;
     try {
       let userId = req.userId;
-      let posts = await Post.find({ author: userId });
+      const limit = 3;
+      const startIndex = (Number(page) - 1) * limit;
+      const total = await Post.countDocuments({author: userId})
+      let posts = await Post.find({ author: userId }).limit(limit).skip(startIndex);
       res.status(200).json({
-        success: true,
-        posts,
+        posts: posts,
+        currentPage: Number(page),
+        totalPost: total,
+        numberOfPages: Math.ceil(total / limit)
       });
     } catch (error) {
       console.log(error);
@@ -150,10 +161,9 @@ const postController = {
   getMyPostsById: async (req, res) => {
       try {
       let id = req.params.id;
-      let post = await Post.find({_id: id});
+      let posts = await Post.find({_id: id}).populate('author');
       res.status(200).json({
-          success: true,
-          post,
+          posts,
       });
       } catch (error) {
       console.log(error);
@@ -163,6 +173,18 @@ const postController = {
       });
       }
   },
+  getPostsBySearch: async (req, res) => {
+    const { searchQuery } = req.query;
+    try {
+      const title = new RegExp(searchQuery, "i");
+      const posts = await Post.find({ title });
+      res.json({
+        posts
+      });
+    } catch (error) {
+      res.status(404).json({ message: "Something went wrong" });
+    }
+  }
 };
 
 module.exports = postController;
