@@ -5,7 +5,7 @@ const postController = {
   getAllPublicPosts: async (req, res) => {
     const { page} = req.query;
     try {
-      const limit = 3;
+      const limit = 10;
       const startIndex = (Number(page) - 1) * limit;
       const total = await Post.countDocuments({accessModified: "Public"})
       let posts = await Post.find({ accessModified: "Public" }).sort({ createdAt: -1 }).limit(limit).skip(startIndex);
@@ -27,7 +27,7 @@ const postController = {
     const { page} = req.query;
     try {
       let userId = req.userId;
-      const limit = 3;
+      const limit = 10;
       const startIndex = (Number(page) - 1) * limit;
       const total = await Post.countDocuments({author: userId})
       let posts = await Post.find({ author: userId }).sort({ createdAt: -1 }).limit(limit).skip(startIndex);
