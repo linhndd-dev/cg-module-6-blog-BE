@@ -86,13 +86,14 @@ const authController = {
       //If all good, return token
       const accessToken = jwt.sign(
         { userId: user._id },
-        process.env.ACCESS_TOKEN_SECRET
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "10m" }
       );
       return res.status(200).json({
         success: true,
         message: "User logged in successfully.",
         accessToken,
-        idUser: user._id
+        idUser: user._id,
       });
     } catch (error) {
       console.log(error);
