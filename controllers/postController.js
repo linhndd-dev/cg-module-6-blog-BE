@@ -62,12 +62,6 @@ const postController = {
         message: "Title is required.",
       });
     }
-    if (!content) {
-      return res.status(400).json({
-        sucess: false,
-        message: "Content is required.",
-      });
-    }
     try {
       let post = req.body;
       let userId = req.userId;
