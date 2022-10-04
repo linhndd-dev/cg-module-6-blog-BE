@@ -15,6 +15,13 @@ const authController = {
       });
     }
 
+    if (username === "admin") {
+      return res.status(400).json({
+        success: false,
+        message: "You are not allow to use 'admin' as username.",
+      });
+    }
+
     try {
       //Check if username taken
       const userByUsername = await User.findOne({ username });
