@@ -139,9 +139,16 @@ const postController = {
     try {
       let id = req.params.id;
       let posts = await Post.find({ _id: id }).populate("author");
-      res.status(200).json({
-        posts,
-      });
+      if (posts.accessModified === STATUS_PUBLIC) {
+        res.status(200).json({
+          success: false,
+          message: "Bài viết không ở trạng thái public.",
+        });
+      } else {
+        res.status(400).json({
+          posts,
+        });
+      }
     } catch (error) {
       console.log(error);
       return res.status(500).json({
