@@ -3,17 +3,11 @@ const Post = require("../models/Post");
 const postController = {
   // LẤY POST GÁN PUBLIC MÀ KHÔNG CÓ TOKEN
   getAllPublicPosts: async (req, res) => {
-    const { page} = req.query;
     try {
-      const limit = 10;
-      const startIndex = (Number(page) - 1) * limit;
-      const total = await Post.countDocuments({accessModified: "Public"})
-      let posts = await Post.find({ accessModified: "Public" }).sort({ createdAt: -1 }).limit(limit).skip(startIndex);
+      let posts = await Post.find({ accessModified: "Public" })
+        .sort({ createdAt: -1 })
       return res.status(200).json({
         posts: posts,
-        currentPage: Number(page),
-        totalPost: total,
-        numberOfPages: Math.ceil(total / limit)
       });
     } catch (error) {
       console.log(error);
@@ -24,18 +18,12 @@ const postController = {
   },
   // LẤY POST CỦA 1 USER CÓ ID
   getAllPostsByUserId: async (req, res) => {
-    const { page} = req.query;
     try {
       let userId = req.userId;
-      const limit = 10;
-      const startIndex = (Number(page) - 1) * limit;
-      const total = await Post.countDocuments({author: userId})
-      let posts = await Post.find({ author: userId }).sort({ createdAt: -1 }).limit(limit).skip(startIndex);
+      let posts = await Post.find({ author: userId })
+        .sort({ createdAt: -1 })
       res.status(200).json({
         posts: posts,
-        currentPage: Number(page),
-        totalPost: total,
-        numberOfPages: Math.ceil(total / limit)
       });
     } catch (error) {
       console.log(error);
@@ -54,12 +42,6 @@ const postController = {
       return res.status(400).json({
         sucess: false,
         message: "Title is required.",
-      });
-    }
-    if (!content) {
-      return res.status(400).json({
-        sucess: false,
-        message: "Content is required.",
       });
     }
     try {
@@ -91,13 +73,6 @@ const postController = {
         message: "Title is required.",
       });
     }
-    if (!content) {
-      return res.status(400).json({
-        sucess: false,
-        message: "Content is required.",
-      });
-    }
-
     try {
       let updatedPost = req.body;
 
@@ -159,19 +134,19 @@ const postController = {
     }
   },
   getMyPostsById: async (req, res) => {
-      try {
+    try {
       let id = req.params.id;
-      let posts = await Post.find({_id: id}).populate('author');
+      let posts = await Post.find({ _id: id }).populate("author");
       res.status(200).json({
-          posts,
+        posts,
       });
-      } catch (error) {
+    } catch (error) {
       console.log(error);
       return res.status(500).json({
-          success: false,
-          message: "Internal server error.",
+        success: false,
+        message: "Internal server error.",
       });
-      }
+    }
   },
   getPostsBySearch: async (req, res) => {
     const { searchQuery } = req.query;
@@ -179,12 +154,12 @@ const postController = {
       const title = new RegExp(searchQuery, "i");
       const posts = await Post.find({ title });
       res.json({
-        posts
+        posts,
       });
     } catch (error) {
       res.status(404).json({ message: "Something went wrong" });
     }
-  }
+  },
 };
 
 module.exports = postController;
