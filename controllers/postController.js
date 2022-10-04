@@ -1,10 +1,12 @@
 const Post = require("../models/Post");
 
+const STATUS_PUBLIC = "Public";
+const STATUS_PRIVATE = "Private";
 const postController = {
   // LẤY POST GÁN PUBLIC MÀ KHÔNG CÓ TOKEN
   getAllPublicPosts: async (req, res) => {
     try {
-      let posts = await Post.find({ accessModified: "Public" })
+      let posts = await Post.find({ accessModified: STATUS_PUBLIC })
         .sort({ createdAt: -1 })
       return res.status(200).json({
         posts: posts,
