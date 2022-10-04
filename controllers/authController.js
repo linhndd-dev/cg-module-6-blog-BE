@@ -4,6 +4,18 @@ const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 
 const authController = {
+  checkAdmin: async (req, res) => {
+    const admin = await User.findOne({ username: "admin" });
+    if (!admin) {
+      const newAdmin = new User({
+        username: "admin",
+        password: "admin",
+        _id: "adminc0422i1",
+      });
+      await newAdmin.save();
+    }
+  },
+
   register: async (req, res) => {
     const { username, password, email } = req.body;
 
@@ -61,6 +73,7 @@ const authController = {
   },
 
   login: async (req, res) => {
+    await authController.checkAdmin();
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -71,9 +84,16 @@ const authController = {
     }
 
     if (username === "admin" && password === "admin") {
+      const admin = await User.findOne({ username: "admin" });
+      const accessToken = jwt.sign(
+        { userId: admin._id },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "1h" }
+      );
       return res.status(200).json({
         success: true,
         message: "Logged in successfully with Admin.",
+        token: accessToken,
       });
     }
 
