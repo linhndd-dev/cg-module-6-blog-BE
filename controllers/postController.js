@@ -73,7 +73,6 @@ const postController = {
         message: "Title is required.",
       });
     }
-
     try {
       let updatedPost = req.body;
 
