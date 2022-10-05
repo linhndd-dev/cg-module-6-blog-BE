@@ -58,19 +58,19 @@ const adminController = {
       });
     }
   },
-  searchUsersByUsername: async (req,res) => {
-    const {searchQuery} = req.query;
+  searchUsersByUsername: async (req, res) => {
+    const { searchQuery } = req.query;
     console.log(searchQuery);
     try {
       const username = new RegExp(searchQuery, "i");
-      let users = await User.find({username}).sort({ createdAt: -1 })
+      let users = await User.find({ username }).sort({ createdAt: -1 });
       res.json({
-        users: users
+        users: users,
       });
     } catch (error) {
       res.status(404).json({ message: "Something went wrong" });
     }
-  }
+  },
 };
 
 module.exports = adminController;
