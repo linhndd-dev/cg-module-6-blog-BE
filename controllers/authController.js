@@ -97,7 +97,7 @@ const authController = {
       return res.status(HTTP_STATUS_CODE_OK).json({
         success: true,
         message: "Logged in successfully with Admin.",
-        token: accessToken,
+        accessToken,
       });
     }
 
