@@ -58,6 +58,33 @@ const adminController = {
       });
     }
   },
+
+  deletePostById: async (req, res) => {
+    try {
+      const postDeleteCondition = { _id: req.params.id };
+      const deletedPost = await Post.findOneAndDelete(postDeleteCondition);
+
+      if (!deletedPost) {
+        return res.status(401).json({
+          success: false,
+          message: "Post not found or user not authorised.",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Post deleted successfully.",
+        post: deletedPost,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+
   searchUsersByUsername: async (req, res) => {
     const { searchQuery } = req.query;
     console.log(searchQuery);
