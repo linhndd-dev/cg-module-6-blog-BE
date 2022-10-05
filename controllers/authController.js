@@ -2,6 +2,10 @@ const User = require("../models/User");
 
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
+const HTTP_STATUS_CODE_OK = 200;
+const HTTP_STATUS_CODE_CREATED = 201;
+const HTTP_STATUS_CODE_BAD_REQUEST = 400;
+const HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR = 500;
 
 const authController = {
   checkAdmin: async (req, res) => {
@@ -21,24 +25,23 @@ const authController = {
 
     // Check for missing fields
     if (!username || !password || !email) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
         success: false,
         message: "Missing required parameter(s)",
       });
     }
 
     if (username === "admin") {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
         success: false,
         message: "You are not allow to use 'admin' as username.",
       });
     }
-
     try {
       //Check if username taken
       const userByUsername = await User.findOne({ username });
       if (userByUsername) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
           success: false,
           message: "Username already taken.",
         });
@@ -47,7 +50,7 @@ const authController = {
       //Check if email taken
       const userByEmail = await User.findOne({ email });
       if (userByEmail) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
           success: false,
           message: "Email already taken.",
         });
@@ -59,15 +62,16 @@ const authController = {
       await newUser.save();
 
       // Done created
-      return res.status(200).json({
+      return res.status(HTTP_STATUS_CODE_CREATED).json({
         success: true,
         message: "User created successfully.",
+        data: newUser
       });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({
+      return res.status(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error.",
+        message: "Internal server error." + error.message,
       });
     }
   },
@@ -77,7 +81,7 @@ const authController = {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
         success: false,
         message: "Missing required parameter(s)",
       });
@@ -90,7 +94,7 @@ const authController = {
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "1h" }
       );
-      return res.status(200).json({
+      return res.status(HTTP_STATUS_CODE_OK).json({
         success: true,
         message: "Logged in successfully with Admin.",
         token: accessToken,
@@ -101,7 +105,7 @@ const authController = {
       //Check if username exists
       const user = await User.findOne({ username });
       if (!user) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
           success: false,
           message: "Incorrect username.",
         });
@@ -111,7 +115,7 @@ const authController = {
       const verifiedPassword = await argon2.verify(user.password, password);
 
       if (!verifiedPassword) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
           success: false,
           message: "Incorrect password.",
         });
@@ -123,7 +127,7 @@ const authController = {
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "1h" }
       );
-      return res.status(200).json({
+      return res.status(HTTP_STATUS_CODE_OK).json({
         success: true,
         message: "User logged in successfully.",
         accessToken,
@@ -131,7 +135,7 @@ const authController = {
       });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({
+      return res.status(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Internal server error.",
       });
