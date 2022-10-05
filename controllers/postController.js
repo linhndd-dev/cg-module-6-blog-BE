@@ -1,10 +1,27 @@
 const Post = require("../models/Post");
 
+const STATUS_PUBLIC = "Public";
+const STATUS_PRIVATE = "Private";
 const postController = {
   // LẤY POST GÁN PUBLIC MÀ KHÔNG CÓ TOKEN
   getAllPublicPosts: async (req, res) => {
     try {
-      let posts = await Post.find({ accessModified: "Public" })
+      let posts = await Post.find({ accessModified: STATUS_PUBLIC }).populate("author")
+        .sort({ createdAt: -1 })
+      return res.status(200).json({
+        posts: posts,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error.",
+      });
+    }
+  },
+  getPublicPostsByUserId: async (req, res) => {
+    try {
+      const authorId = req.params.id
+      let posts = await Post.find({ accessModified: STATUS_PUBLIC, author: authorId })
         .sort({ createdAt: -1 })
       return res.status(200).json({
         posts: posts,
@@ -137,9 +154,9 @@ const postController = {
     try {
       let id = req.params.id;
       let posts = await Post.find({ _id: id }).populate("author");
-      res.status(200).json({
-        posts,
-      });
+        res.status(200).json({
+          posts,
+        });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
@@ -149,12 +166,14 @@ const postController = {
     }
   },
   getPostsBySearch: async (req, res) => {
-    const { searchQuery } = req.query;
+    const userId = req.userId;
+    const {searchQuery} = req.query;
+    console.log(searchQuery);
     try {
       const title = new RegExp(searchQuery, "i");
-      const posts = await Post.find({ title });
+      let posts = await Post.find({title,author:userId}).sort({ createdAt: -1 })
       res.json({
-        posts,
+        posts: posts
       });
     } catch (error) {
       res.status(404).json({ message: "Something went wrong" });
