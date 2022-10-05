@@ -4,9 +4,9 @@ const verifyToken = require("../middlewares/auth");
 
 const adminController = require("../controllers/adminController");
 
-router.get("/posts", verifyToken, adminController.getAllPosts);
-router.delete("/posts/:id", verifyToken, adminController.deletePostById);
-router.get("/users", verifyToken, adminController.getAllUsers);
-router.get("/users/search", verifyToken, adminController.searchUsersByUsername);
+router.get("/posts", adminController.getAllPosts);
+router.delete("/posts/:id", adminController.deletePostById);
+router.get("/users", adminController.getAllUsers);
+router.get("/users/search", adminController.searchUsersByUsername);
 
 module.exports = router;
