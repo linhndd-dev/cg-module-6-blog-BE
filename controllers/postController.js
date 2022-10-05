@@ -6,7 +6,22 @@ const postController = {
   // LẤY POST GÁN PUBLIC MÀ KHÔNG CÓ TOKEN
   getAllPublicPosts: async (req, res) => {
     try {
-      let posts = await Post.find({ accessModified: STATUS_PUBLIC })
+      let posts = await Post.find({ accessModified: STATUS_PUBLIC }).populate("author")
+        .sort({ createdAt: -1 })
+      return res.status(200).json({
+        posts: posts,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error.",
+      });
+    }
+  },
+  getPublicPostsByUserId: async (req, res) => {
+    try {
+      const authorId = req.params.id
+      let posts = await Post.find({ accessModified: STATUS_PUBLIC, author: authorId })
         .sort({ createdAt: -1 })
       return res.status(200).json({
         posts: posts,
@@ -139,16 +154,9 @@ const postController = {
     try {
       let id = req.params.id;
       let posts = await Post.find({ _id: id }).populate("author");
-      if (posts.accessModified === STATUS_PUBLIC) {
         res.status(200).json({
           posts,
         });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: "Bài viết không ở trạng thái public.",
-        });
-      }
     } catch (error) {
       console.log(error);
       return res.status(500).json({
