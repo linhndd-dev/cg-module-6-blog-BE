@@ -65,7 +65,7 @@ const authController = {
       return res.status(HTTP_STATUS_CODE_CREATED).json({
         success: true,
         message: "User created successfully.",
-        data: newUser
+        data: newUser,
       });
     } catch (error) {
       console.log(error);
@@ -99,46 +99,46 @@ const authController = {
         message: "Logged in successfully with Admin.",
         accessToken,
       });
-    }
+    } else {
+      try {
+        //Check if username exists
+        const user = await User.findOne({ username });
+        if (!user) {
+          return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
+            success: false,
+            message: "Incorrect username.",
+          });
+        }
 
-    try {
-      //Check if username exists
-      const user = await User.findOne({ username });
-      if (!user) {
-        return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
+        //Check if password matches
+        const verifiedPassword = await argon2.verify(user.password, password);
+
+        if (!verifiedPassword) {
+          return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
+            success: false,
+            message: "Incorrect password.",
+          });
+        }
+
+        //If all good, return token
+        const accessToken = jwt.sign(
+          { userId: user._id },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: "1h" }
+        );
+        return res.status(HTTP_STATUS_CODE_OK).json({
+          success: true,
+          message: "User logged in successfully.",
+          accessToken,
+          idUser: user._id,
+        });
+      } catch (error) {
+        console.log(error);
+        return res.status(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: "Incorrect username.",
+          message: "Internal server error.",
         });
       }
-
-      //Check if password matches
-      const verifiedPassword = await argon2.verify(user.password, password);
-
-      if (!verifiedPassword) {
-        return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
-          success: false,
-          message: "Incorrect password.",
-        });
-      }
-
-      //If all good, return token
-      const accessToken = jwt.sign(
-        { userId: user._id },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "1h" }
-      );
-      return res.status(HTTP_STATUS_CODE_OK).json({
-        success: true,
-        message: "User logged in successfully.",
-        accessToken,
-        idUser: user._id,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Internal server error.",
-      });
     }
   },
 };

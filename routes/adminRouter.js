@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require("../middlewares/auth");
 
 const adminController = require("../controllers/adminController");
 
-router.get("/users/search", adminController.searchUsersByUsername);
-router.get("/posts", adminController.getAllPosts);
-router.get("/posts/:id", adminController.getPostById);
-router.get("/users", adminController.getAllUsers);
+router.get("/posts", verifyToken, adminController.getAllPosts);
+router.delete("/posts/:id", verifyToken, adminController.deletePostById);
+router.get("/users", verifyToken, adminController.getAllUsers);
+router.get("/users/search", verifyToken, adminController.searchUsersByUsername);
 
 module.exports = router;
