@@ -58,19 +58,46 @@ const adminController = {
       });
     }
   },
-  searchUsersByUsername: async (req,res) => {
-    const {searchQuery} = req.query;
+
+  deletePostById: async (req, res) => {
+    try {
+      const postDeleteCondition = { _id: req.params.id };
+      const deletedPost = await Post.findOneAndDelete(postDeleteCondition);
+
+      if (!deletedPost) {
+        return res.status(401).json({
+          success: false,
+          message: "Post not found or user not authorised.",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Post deleted successfully.",
+        post: deletedPost,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+
+  searchUsersByUsername: async (req, res) => {
+    const { searchQuery } = req.query;
     console.log(searchQuery);
     try {
       const username = new RegExp(searchQuery, "i");
-      let users = await User.find({username}).sort({ createdAt: -1 })
+      let users = await User.find({ username }).sort({ createdAt: -1 });
       res.json({
-        users: users
+        users: users,
       });
     } catch (error) {
       res.status(404).json({ message: "Something went wrong" });
     }
-  }
+  },
 };
 
 module.exports = adminController;
