@@ -149,12 +149,14 @@ const postController = {
     }
   },
   getPostsBySearch: async (req, res) => {
-    const { searchQuery } = req.query;
+    const userId = req.userId;
+    const {searchQuery} = req.query;
+    console.log(searchQuery);
     try {
       const title = new RegExp(searchQuery, "i");
-      const posts = await Post.find({ title });
+      let posts = await Post.find({title,author:userId}).sort({ createdAt: -1 })
       res.json({
-        posts,
+        posts: posts
       });
     } catch (error) {
       res.status(404).json({ message: "Something went wrong" });
