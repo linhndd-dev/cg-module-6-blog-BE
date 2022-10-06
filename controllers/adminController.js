@@ -58,10 +58,9 @@ const adminController = {
 
       const user = await User.findOne({ _id: deletedPost.author._id });
       const userId = user._id;
-      const username = user.username;
 
       const notification = new Notification({
-        message: `The post by username "${username}" with title "${deletedPost.title}" was deleted by Admin`,
+        message: `The post with title *${deletedPost.title}* was deleted by Admin`,
         user: userId,
       });
 
@@ -96,22 +95,39 @@ const adminController = {
     }
   },
 
-  deleteUserById: async (req, res) => {
+  setUserInactiveById: async (req, res) => {
     try {
-      const userDeleteCondition = { _id: req.params.id };
-      const deletedUser = await User.findOneAndDelete(userDeleteCondition);
+      const oldUser = await User.findOne({ _id: req.params.id });
+      const { currentStatus } = req.body;
 
-      if (!deletedUser) {
+      if (!oldUser) {
         return res.status(401).json({
           success: false,
           message: "User not found or admin not authorised.",
         });
       }
 
+      if (currentStatus === "Active") {
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { status: "Inactive" } }
+        );
+      }
+
+      if (currentStatus === "Inactive") {
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { status: "Active" } }
+        );
+      }
+
+      const newUser = await User.findOne({ _id: req.params.id });
+
       res.json({
         success: true,
-        message: "User deleted successfully.",
-        user: deletedUser,
+        message: "User status switched successfully.",
+        previousStatus: currentStatus,
+        newStatus: newUser.status,
       });
     } catch (error) {
       console.log(error);
