@@ -1,17 +1,21 @@
 const express = require("express");
 const postController = require("../controllers/postController");
 const router = express.Router();
-const verifyToken = require("../middlewares/auth");
+const {verifyToken, optionallyVerifyToken} = require("../middlewares/auth");
 
 
 router.get("/search",verifyToken, postController.getPostsBySearch)
 
-router.get("/guest", postController.getAllPublicPosts);
+router.get("/guest",optionallyVerifyToken, postController.getAllPublicPosts);
 router.get("/guest/author/:id",postController.getPublicPostsByUserId)
 router.get("/", verifyToken, postController.getAllPostsByUserId);
 router.get("/:id", postController.getMyPostsById);
 router.post("/", verifyToken, postController.createMyPost);
 router.put("/:id", verifyToken, postController.editMyPost);
 router.delete("/:id", verifyToken, postController.deleteMyPost);
+
+router.post("/like/:id",verifyToken,postController.likePost)
+router.delete("/like/:id",verifyToken,postController.unlikePost);
+router.get("/liked/:id",optionallyVerifyToken,postController.getUserLikedPosts)
 
 module.exports = router;
