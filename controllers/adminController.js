@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Post = require("../models/Post");
+const Notification = require("../models/Notification");
 
 const adminController = {
   getAllPosts: async (req, res) => {
@@ -43,6 +44,42 @@ const adminController = {
     }
   },
 
+  deletePostById: async (req, res) => {
+    try {
+      const postDeleteCondition = { _id: req.params.id };
+      const deletedPost = await Post.findOneAndDelete(postDeleteCondition);
+
+      if (!deletedPost) {
+        return res.status(401).json({
+          success: false,
+          message: "Post not found or user not authorised.",
+        });
+      }
+
+      const user = await User.findOne({ _id: deletedPost.author._id });
+      const userId = user._id;
+      const username = user.username;
+
+      const notification = new Notification({
+        message: `The post by username "${username}" with title "${deletedPost.title}" was deleted by Admin`,
+        user: userId,
+      });
+
+      res.json({
+        success: true,
+        message: "Post deleted successfully.",
+        post: deletedPost,
+        notification: notification,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+
   getAllUsers: async (req, res) => {
     try {
       const users = await User.find().sort({ createdAt: -1 });
@@ -59,22 +96,22 @@ const adminController = {
     }
   },
 
-  deletePostById: async (req, res) => {
+  deleteUserById: async (req, res) => {
     try {
-      const postDeleteCondition = { _id: req.params.id };
-      const deletedPost = await Post.findOneAndDelete(postDeleteCondition);
+      const userDeleteCondition = { _id: req.params.id };
+      const deletedUser = await User.findOneAndDelete(userDeleteCondition);
 
-      if (!deletedPost) {
+      if (!deletedUser) {
         return res.status(401).json({
           success: false,
-          message: "Post not found or user not authorised.",
+          message: "User not found or admin not authorised.",
         });
       }
 
       res.json({
         success: true,
-        message: "Post deleted successfully.",
-        post: deletedPost,
+        message: "User deleted successfully.",
+        user: deletedUser,
       });
     } catch (error) {
       console.log(error);

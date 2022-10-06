@@ -1,3 +1,4 @@
 node_modules
-request.http
+requestAdmin.http
+requestUser.http
 /.idea
