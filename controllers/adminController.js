@@ -58,10 +58,9 @@ const adminController = {
 
       const user = await User.findOne({ _id: deletedPost.author._id });
       const userId = user._id;
-      const username = user.username;
 
       const notification = new Notification({
-        message: `The post by username "${username}" with title "${deletedPost.title}" was deleted by Admin`,
+        message: `The post with title *${deletedPost.title}* was deleted by Admin`,
         user: userId,
       });
 
@@ -96,22 +95,61 @@ const adminController = {
     }
   },
 
-  deleteUserById: async (req, res) => {
-    try {
-      const userDeleteCondition = { _id: req.params.id };
-      const deletedUser = await User.findOneAndDelete(userDeleteCondition);
+  getUserById: async (req, res) => {
+    const id = req.params.id;
 
-      if (!deletedUser) {
+    try {
+      const user = await User.findOne({ _id: id });
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: "User Not Found.",
+        });
+      }
+
+      return res.json({
+        user,
+      });
+    } catch (error) {
+      res.status(404).json({ message: "Something went wrong" });
+    }
+  },
+
+  changeUserStatusById: async (req, res) => {
+    try {
+      const oldUser = await User.findOne({ _id: req.params.id });
+      const { currentStatus } = req.body;
+      console.log(req.params.id);
+      console.log(currentStatus);
+
+      if (!oldUser) {
         return res.status(401).json({
           success: false,
           message: "User not found or admin not authorised.",
         });
       }
 
+      if (currentStatus === "Active") {
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { status: "Inactive" } }
+        );
+      }
+
+      if (currentStatus === "Inactive") {
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { status: "Active" } }
+        );
+      }
+
+      const newUser = await User.findOne({ _id: req.params.id });
+
       res.json({
         success: true,
-        message: "User deleted successfully.",
-        user: deletedUser,
+        message: "User status switched successfully.",
+        id: newUser._id,
+        newUser,
       });
     } catch (error) {
       console.log(error);
@@ -135,6 +173,20 @@ const adminController = {
       res.status(404).json({ message: "Something went wrong" });
     }
   },
+  searchPostsByTitle: async (req,res) => {
+    const {searchQuery} = req.query;
+    console.log(searchQuery);
+    try {
+      const title = new RegExp(searchQuery, "i");
+      let posts = await Post.find({title}).sort({ createdAt: -1 })
+      res.json({
+        posts: posts
+      });
+    } catch (error) {
+      res.status(404).json({ message: "Something went wrong" });
+    }
+  }
 };
+
 
 module.exports = adminController;
