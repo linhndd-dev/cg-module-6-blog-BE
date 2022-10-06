@@ -43,22 +43,6 @@ const adminController = {
     }
   },
 
-  getAllUsers: async (req, res) => {
-    try {
-      const users = await User.find().sort({ createdAt: -1 });
-      return res.status(200).json({
-        success: true,
-        users: users,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        success: false,
-        message: "Internal server error." + error.message,
-      });
-    }
-  },
-
   deletePostById: async (req, res) => {
     try {
       const postDeleteCondition = { _id: req.params.id };
@@ -75,6 +59,48 @@ const adminController = {
         success: true,
         message: "Post deleted successfully.",
         post: deletedPost,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+
+  getAllUsers: async (req, res) => {
+    try {
+      const users = await User.find().sort({ createdAt: -1 });
+      return res.status(200).json({
+        success: true,
+        users: users,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error." + error.message,
+      });
+    }
+  },
+
+  deleteUserById: async (req, res) => {
+    try {
+      const userDeleteCondition = { _id: req.params.id };
+      const deletedUser = await User.findOneAndDelete(userDeleteCondition);
+
+      if (!deletedUser) {
+        return res.status(401).json({
+          success: false,
+          message: "User not found or admin not authorised.",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "User deleted successfully.",
+        user: deletedUser,
       });
     } catch (error) {
       console.log(error);
