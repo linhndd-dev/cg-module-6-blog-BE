@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Post = require("../models/Post");
+const Notification = require("../models/Notification");
 
 const adminController = {
   getAllPosts: async (req, res) => {
@@ -55,10 +56,20 @@ const adminController = {
         });
       }
 
+      const user = await User.findOne({ _id: deletedPost.author._id });
+      const userId = user._id;
+      const username = user.username;
+
+      const notification = new Notification({
+        message: `The post by username "${username}" with title "${deletedPost.title}" was deleted by Admin`,
+        user: userId,
+      });
+
       res.json({
         success: true,
         message: "Post deleted successfully.",
         post: deletedPost,
+        notification: notification,
       });
     } catch (error) {
       console.log(error);
