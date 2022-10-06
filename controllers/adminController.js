@@ -173,6 +173,20 @@ const adminController = {
       res.status(404).json({ message: "Something went wrong" });
     }
   },
+  searchPostsByTitle: async (req,res) => {
+    const {searchQuery} = req.query;
+    console.log(searchQuery);
+    try {
+      const title = new RegExp(searchQuery, "i");
+      let posts = await Post.find({title}).sort({ createdAt: -1 })
+      res.json({
+        posts: posts
+      });
+    } catch (error) {
+      res.status(404).json({ message: "Something went wrong" });
+    }
+  }
 };
+
 
 module.exports = adminController;
