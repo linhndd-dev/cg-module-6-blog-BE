@@ -128,6 +128,7 @@ const authController = {
             message: "Inactive Account",
           });
         }
+
         //If all good, return token
         const accessToken = jwt.sign(
           { userId: user._id },

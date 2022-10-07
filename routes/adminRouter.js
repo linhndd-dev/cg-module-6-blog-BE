@@ -13,4 +13,5 @@ router.get("/users/search",verifyTokenAdmin, adminController.searchUsersByUserna
 router.get("/posts/:id",verifyTokenAdmin, adminController.getPostById);
 router.get("/users/:id",verifyTokenAdmin, adminController.getUserById);
 
+
 module.exports = router;
