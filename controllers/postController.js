@@ -24,7 +24,7 @@ const postController = {
     try {
       const userId = req.userId;
       let posts = await Post.find({ accessModified: STATUS_PUBLIC }).populate('author')
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1 }).lean();
 
       if (userId) {
         await postController.setLiked(posts, userId);
