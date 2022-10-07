@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Post = require("../models/Post");
+const Notification = require("../models/Notification");
 
 const adminController = {
   getAllPosts: async (req, res) => {
@@ -43,6 +44,41 @@ const adminController = {
     }
   },
 
+  deletePostById: async (req, res) => {
+    try {
+      const postDeleteCondition = { _id: req.params.id };
+      const deletedPost = await Post.findOneAndDelete(postDeleteCondition);
+
+      if (!deletedPost) {
+        return res.status(401).json({
+          success: false,
+          message: "Post not found or user not authorised.",
+        });
+      }
+
+      const user = await User.findOne({ _id: deletedPost.author._id });
+      const userId = user._id;
+
+      const notification = new Notification({
+        message: `The post with title *${deletedPost.title}* was deleted by Admin`,
+        user: userId,
+      });
+
+      res.json({
+        success: true,
+        message: "Post deleted successfully.",
+        post: deletedPost,
+        notification: notification,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+
   getAllUsers: async (req, res) => {
     try {
       const users = await User.find().sort({ createdAt: -1 });
@@ -59,22 +95,61 @@ const adminController = {
     }
   },
 
-  deletePostById: async (req, res) => {
-    try {
-      const postDeleteCondition = { _id: req.params.id };
-      const deletedPost = await Post.findOneAndDelete(postDeleteCondition);
+  getUserById: async (req, res) => {
+    const id = req.params.id;
 
-      if (!deletedPost) {
-        return res.status(401).json({
+    try {
+      const user = await User.findOne({ _id: id });
+      if (!user) {
+        return res.status(400).json({
           success: false,
-          message: "Post not found or user not authorised.",
+          message: "User Not Found.",
         });
       }
 
+      return res.json({
+        user,
+      });
+    } catch (error) {
+      res.status(404).json({ message: "Something went wrong" });
+    }
+  },
+
+  changeUserStatusById: async (req, res) => {
+    try {
+      const oldUser = await User.findOne({ _id: req.params.id });
+      const { currentStatus } = req.body;
+      console.log(req.params.id);
+      console.log(currentStatus);
+
+      if (!oldUser) {
+        return res.status(401).json({
+          success: false,
+          message: "User not found or admin not authorised.",
+        });
+      }
+
+      if (currentStatus === "Active") {
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { status: "Inactive" } }
+        );
+      }
+
+      if (currentStatus === "Inactive") {
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { status: "Active" } }
+        );
+      }
+
+      const newUser = await User.findOne({ _id: req.params.id });
+
       res.json({
         success: true,
-        message: "Post deleted successfully.",
-        post: deletedPost,
+        message: "User status switched successfully.",
+        id: newUser._id,
+        newUser,
       });
     } catch (error) {
       console.log(error);
@@ -98,6 +173,20 @@ const adminController = {
       res.status(404).json({ message: "Something went wrong" });
     }
   },
+  searchPostsByTitle: async (req,res) => {
+    const {searchQuery} = req.query;
+    console.log(searchQuery);
+    try {
+      const title = new RegExp(searchQuery, "i");
+      let posts = await Post.find({title}).sort({ createdAt: -1 })
+      res.json({
+        posts: posts
+      });
+    } catch (error) {
+      res.status(404).json({ message: "Something went wrong" });
+    }
+  }
 };
+
 
 module.exports = adminController;
