@@ -164,11 +164,11 @@ const postController = {
       let post = req.body;
       let userId = req.userId;
       post.author = userId;
-      await Post.create(post);
+      await (await Post.create(post)).populate("author")
       res.status(200).json({
         success: true,
         message: "Post created successfully.",
-        post,
+        post: post
       });
     } catch (error) {
       console.log(error);
