@@ -151,7 +151,7 @@ const adminController = {
         success: true,
         message: "User status switched successfully.",
         previousStatus: currentStatus,
-        newStatus: newUser.status,
+        newStatus: newUser,
       });
     } catch (error) {
       console.log(error);
