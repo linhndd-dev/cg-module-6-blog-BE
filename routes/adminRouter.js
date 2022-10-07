@@ -11,5 +11,6 @@ router.get("/users",verifyTokenAdmin, adminController.getAllUsers);
 router.put("/users/status/:id",verifyTokenAdmin, adminController.setUserInactiveById);
 router.get("/users/search",verifyTokenAdmin, adminController.searchUsersByUsername);
 router.get("/posts/:id",verifyTokenAdmin, adminController.getPostById);
+router.get("/users/:id",verifyTokenAdmin, adminController.getUserById);
 
 module.exports = router;
