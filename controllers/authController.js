@@ -122,7 +122,12 @@ const authController = {
             message: "Incorrect password.",
           });
         }
-
+        if(user.status === "Inactive") {
+          return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
+            success: false,
+            message: "Inactive Account",
+          });
+        }
         //If all good, return token
         const accessToken = jwt.sign(
           { userId: user._id },
