@@ -63,6 +63,7 @@ const adminController = {
         message: `The post with title *${deletedPost.title}* was deleted by Admin`,
         user: userId,
       });
+      await notification.save();
 
       res.json({
         success: true,
