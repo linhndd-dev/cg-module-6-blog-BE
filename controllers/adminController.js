@@ -96,32 +96,34 @@ const adminController = {
   },
 
   getUserById: async (req, res) => {
-    const id = req.params.id;
-
     try {
-      const user = await User.findOne({ _id: id });
-      if (!user) {
-        return res.status(400).json({
+      let id = req.params.id;
+      let user = await User.findOne({ _id: id });
+      if (user) {
+        console.log(user.id);
+        res.status(200).json({
+          user: user,
+        });
+      } else {
+        res.status(400).json({
           success: false,
-          message: "User Not Found.",
+          message: "User not found.",
         });
       }
-
-      return res.json({
-        user,
-      });
     } catch (error) {
-      res.status(404).json({ message: "Something went wrong" });
+      console.log(error);
+      return res.status(gi500).json({
+        success: false,
+        message: "Internal server error.",
+      });
     }
   },
 
-  changeUserStatusById: async (req, res) => {
+  setUserInactiveById: async (req, res) => {
     try {
       const oldUser = await User.findOne({ _id: req.params.id });
       const { currentStatus } = req.body;
-      console.log(req.params.id);
-      console.log(currentStatus);
-
+      console.log(req.params.id, currentStatus);
       if (!oldUser) {
         return res.status(401).json({
           success: false,
@@ -148,8 +150,8 @@ const adminController = {
       res.json({
         success: true,
         message: "User status switched successfully.",
-        id: newUser._id,
-        newUser,
+        previousStatus: currentStatus,
+        newStatus: newUser,
       });
     } catch (error) {
       console.log(error);
