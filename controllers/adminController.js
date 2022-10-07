@@ -95,11 +95,35 @@ const adminController = {
     }
   },
 
+  getUserById: async (req, res) => {
+    try {
+      let id = req.params.id;
+      let user = await User.findOne({ _id: id });
+      if (user) {
+        console.log(user.id);
+        res.status(200).json({
+          user: user,
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: "User not found.",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(gi500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+
   setUserInactiveById: async (req, res) => {
     try {
       const oldUser = await User.findOne({ _id: req.params.id });
       const { currentStatus } = req.body;
-
+      console.log(req.params.id, currentStatus);
       if (!oldUser) {
         return res.status(401).json({
           success: false,
