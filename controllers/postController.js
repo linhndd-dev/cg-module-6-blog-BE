@@ -135,9 +135,12 @@ const postController = {
   // LẤY POST CỦA 1 USER CÓ ID
   getAllPostsByUserId: async (req, res) => {
     try {
-      let userId = req.userId;
+      const userId = req.userId;
       let posts = await Post.find({ author: userId }).populate('author')
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1 }).lean();
+      if (userId) {
+        await postController.setLiked(posts, userId);
+      }
       res.status(200).json({
         posts: posts,
       });
@@ -270,7 +273,10 @@ const postController = {
     console.log(searchQuery);
     try {
       const title = new RegExp(searchQuery, "i");
-      let posts = await Post.find({title,author:userId}).sort({ createdAt: -1 }).populate('author')
+      let posts = await Post.find({title,author:userId}).sort({ createdAt: -1 }).populate('author').lean();
+      if (userId) {
+        await postController.setLiked(posts, userId)
+      }
       res.json({
         posts: posts
       });
