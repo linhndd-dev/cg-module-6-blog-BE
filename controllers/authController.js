@@ -131,7 +131,7 @@ const authController = {
         const accessToken = jwt.sign(
           { userId: user._id },
           process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "1h" }
+          { expiresIn: "24h" }
         );
         return res.status(HTTP_STATUS_CODE_OK).json({
           success: true,
@@ -189,7 +189,7 @@ const authController = {
           const accessToken = jwt.sign(
             { userId: user._id },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "1h" }
+            { expiresIn: "24h" }
           );
           return res.status(HTTP_STATUS_CODE_OK).json({
             success: true,
