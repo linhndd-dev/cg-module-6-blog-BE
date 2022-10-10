@@ -34,6 +34,10 @@ const PostSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "users",
   },
+  tagArray: {
+    type: Array,
+    default: [],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
