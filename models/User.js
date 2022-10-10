@@ -21,7 +21,7 @@ const UserSchema = new Schema({
   avatar: {
     type: String,
     default:
-      "https://firebasestorage.googleapis.com/v0/b/image-blog-dbb1d.appspot.com/o/files%2FMinimalist.png?alt=media&token=2eaaa696-d4cd-4775-85af-a1aa016ace58",
+      "https://firebasestorage.googleapis.com/v0/b/image-blog-dbb1d.appspot.com/o/files%2Fcropped-512-512-682156.jpg?alt=media&token=b2b7a3af-75ce-4d13-b940-6096db39d0d4",
   },
   status: {
     type: String,
