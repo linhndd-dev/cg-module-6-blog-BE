@@ -90,9 +90,7 @@ const authController = {
     if (username === "admin" && password === "admin") {
       const admin = await User.findOne({ username: "admin" });
       const accessToken = jwt.sign(
-        { userId: admin._id,
-          isAdmin: true,
-        },
+        { userId: admin._id },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "1h" }
       );
@@ -100,7 +98,6 @@ const authController = {
         success: true,
         message: "Logged in successfully with Admin.",
         accessToken,
-        username: admin.username,
       });
     } else {
       try {
@@ -122,12 +119,6 @@ const authController = {
             message: "Incorrect password.",
           });
         }
-        if(user.status === "Inactive") {
-          return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
-            success: false,
-            message: "Inactive Account",
-          });
-        }
 
         //If all good, return token
         const accessToken = jwt.sign(
@@ -140,7 +131,6 @@ const authController = {
           message: "User logged in successfully.",
           accessToken,
           idUser: user._id,
-          username: user.username
         });
       } catch (error) {
         console.log(error);
@@ -168,7 +158,7 @@ const authController = {
   },
 
   updateUser: async (req, res) => {
-    const user = await User.findByIdAndUpdate({_id: req.params.id})
+    const user = await User.findByIdAndUpdate(req.body._id)
     console.log(user)
     try{
       if(user) {
