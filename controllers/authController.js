@@ -90,9 +90,7 @@ const authController = {
     if (username === "admin" && password === "admin") {
       const admin = await User.findOne({ username: "admin" });
       const accessToken = jwt.sign(
-        { userId: admin._id,
-          isAdmin: true,
-        },
+        { userId: admin._id, isAdmin: true },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "1h" }
       );
@@ -122,7 +120,7 @@ const authController = {
             message: "Incorrect password.",
           });
         }
-        if(user.status === "Inactive") {
+        if (user.status === "Inactive") {
           return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
             success: false,
             message: "Inactive Account",
@@ -140,7 +138,9 @@ const authController = {
           message: "User logged in successfully.",
           accessToken,
           idUser: user._id,
-          username: user.username
+          username: user.username,
+          avatar: user.avatar,
+          fullname: user.fullname
         });
       } catch (error) {
         console.log(error);
@@ -151,9 +151,71 @@ const authController = {
       }
     }
   },
-  loginGoogle: (req, res) => {
+  loginGoogle: async (req, res) => {
+    try {
+      const user = await User.findOne({ username: req.body.googleId });
+      if (!user) {
+        const newUser = {
+          username: req.body.googleId,
+          password: "123456A",
+          fullname: req.body.name,
+          email: req.body.email,
+          avatar: req.body.imageUrl,
+        };
+        newUser.password = await argon2.hash(newUser.password);
+        await User.create(newUser);
+        const accessToken = jwt.sign(
+          { userId: newUser._id },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: "1h" }
+        );
+        return res.status(HTTP_STATUS_CODE_OK).json({
+          success: true,
+          message: "User logged in successfully.",
+          accessToken,
+          idUser: newUser._id,
+          username: newUser.username,
+        });
+      } else {
+        try {
+          if (user.status === "Inactive") {
+            return res.status(HTTP_STATUS_CODE_BAD_REQUEST).json({
+              success: false,
+              message: "Inactive Account",
+            });
+          }
 
-  }
+          //If all good, return token
+          const accessToken = jwt.sign(
+            { userId: user._id },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: "1h" }
+          );
+          return res.status(HTTP_STATUS_CODE_OK).json({
+            success: true,
+            message: "User logged in successfully.",
+            accessToken,
+            idUser: user._id,
+            username: user.username,
+            avatar: user.avatar,
+            fullname: user.fullname
+          });
+        } catch (error) {
+          console.log(error);
+          return res.status(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Internal server error.",
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
 };
 
 module.exports = authController;
