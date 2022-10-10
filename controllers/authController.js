@@ -151,6 +151,9 @@ const authController = {
       }
     }
   },
+  loginGoogle: (req, res) => {
+
+  }
 };
 
 module.exports = authController;
