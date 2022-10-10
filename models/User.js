@@ -23,6 +23,12 @@ const UserSchema = new Schema({
     default:
       "https://firebasestorage.googleapis.com/v0/b/image-blog-dbb1d.appspot.com/o/files%2FMinimalist.png?alt=media&token=2eaaa696-d4cd-4775-85af-a1aa016ace58",
   },
+  address: {
+    type: String,
+  },
+  phoneNumber: {
+    type: Number
+  },
   status: {
     type: String,
     default: "Active",

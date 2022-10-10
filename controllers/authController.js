@@ -141,6 +141,48 @@ const authController = {
       }
     }
   },
+
+  profileUser: async (req, res) => {
+      const user = await User.findOne({_id: req.params.id})
+      try {
+        if(user) {
+          res.json({
+            success : true,
+            data: user,
+            message:''
+          })
+        }
+      }catch(error) {
+        console.log(error)
+      }
+  },
+
+  updateUser: async (req, res) => {
+    const user = await User.findByIdAndUpdate({_id: req.params.id})
+    console.log(user)
+    try{
+      if(user) {
+
+        user.fullname = req.body.fullname || user.fullname
+        user.email = req.body.email || user.email
+        user.phonenumber = req.body.phone || user.phonenumber
+        user.address = req.body.address || user.address
+        user.avatar = req.body.avatar || user.avatar
+
+        const updateUser = await user.save()
+        res.json(
+          updateUser
+        )
+      }else {
+        res.status(404).json({
+          success : false,
+          message : 'User does not exist'
+        })
+      }
+    } catch(error) {
+        console.log(error)
+    }
+  }
 };
 
 module.exports = authController;
