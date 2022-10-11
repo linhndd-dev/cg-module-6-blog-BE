@@ -2,13 +2,52 @@ const Tag = require("../models/Tag");
 const Post = require("../models/Post");
 
 const tagController = {
+  deleteTagIfZero: async (req, res) => {
+    try {
+      const tags = Tag.deleteMany({ postArray: [] });
+
+      console.log("deleteTagIfZero", tags);
+      return res.json({
+        success: true,
+        deletedTagsIfZero: tags,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+
   getAllTags: async (req, res) => {
     try {
+      this.deleteTagIfZero;
+
       const tags = await Tag.find();
 
+      console.log("getAllTags", tags);
       return res.json({
         success: true,
         tags,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
+
+  getAllPostsByTagId: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const tag = await Tag.findOne({ _id: id });
+      console.log("getAllPostsByTagId", tag);
+      return res.json({
+        success: true,
+        postArray: tag.postArray,
       });
     } catch (error) {
       console.log(error);
@@ -24,13 +63,19 @@ const tagController = {
     const { newTagName } = req.body;
     try {
       let tag = await Tag.findOne({ title: newTagName });
-      if (!tag) {
-        const newTag = new Tag({
-          title: newTagName,
+
+      if (tag) {
+        return res.json({
+          success: true,
+          message: "Tag already exists.",
         });
-        await newTag.save();
-        tag = newTag;
       }
+
+      const newTag = new Tag({
+        title: newTagName,
+      });
+      await newTag.save();
+      tag = newTag;
 
       const newPostArray = tag.postArray;
       const checkExistedPost = newPostArray.find((id) => id == postId);

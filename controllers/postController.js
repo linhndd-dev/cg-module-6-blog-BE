@@ -1,11 +1,11 @@
 const Like = require("../models/Like");
 const Post = require("../models/Post");
+const Tag = require("../models/Tag");
 
 const STATUS_PUBLIC = "Public";
 const STATUS_PRIVATE = "Private";
 const postController = {
-
-    setLiked : async(posts,userId) => {
+  setLiked: async (posts, userId) => {
     let searchCondition = {};
     if (userId) searchCondition = { userId };
     const userPostLikes = await Like.find(searchCondition);
@@ -23,8 +23,10 @@ const postController = {
   getAllPublicPosts: async (req, res) => {
     try {
       const userId = req.userId;
-      let posts = await Post.find({ accessModified: STATUS_PUBLIC }).populate('author')
-        .sort({ createdAt: -1 }).lean();
+      let posts = await Post.find({ accessModified: STATUS_PUBLIC })
+        .populate("author")
+        .sort({ createdAt: -1 })
+        .lean();
 
       if (userId) {
         await postController.setLiked(posts, userId);
@@ -44,7 +46,7 @@ const postController = {
     try {
       const likedId = req.params.id;
       const userId = req.userId;
-      let posts = await Like.find({userId:likedId});
+      let posts = await Like.find({ userId: likedId });
       let responsePosts = [];
       posts.forEach((post) => {
         responsePosts.push(post.postId);
@@ -54,8 +56,7 @@ const postController = {
         await postController.setLiked(responsePosts, userId);
       }
 
-      return res.status(200).json({posts: responsePosts})
-
+      return res.status(200).json({ posts: responsePosts });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
@@ -64,28 +65,26 @@ const postController = {
     }
   },
 
-
-  likePost: async (req,res) => {
+  likePost: async (req, res) => {
     try {
       const postId = req.params.id;
-      const userId = req.userId
+      const userId = req.userId;
 
       const post = await Post.findById(postId);
       if (!post) {
         throw new Error("Post does not exist");
       }
 
-      const existingPostLike = await Like.findOne({postId,userId});
+      const existingPostLike = await Like.findOne({ postId, userId });
 
       if (existingPostLike) {
         throw new Error("Post is already liked");
       }
 
-      await Like.create({postId,userId});
-      post.like = (await Like.find({postId})).length;
+      await Like.create({ postId, userId });
+      post.like = (await Like.find({ postId })).length;
       await post.save();
-      return res.status(201).json({success: true});
-
+      return res.status(201).json({ success: true });
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
@@ -100,28 +99,27 @@ const postController = {
         throw new Error("Post does not exist");
       }
 
-      const existingPostLike = await Like.findOne({postId,userId});
+      const existingPostLike = await Like.findOne({ postId, userId });
 
       if (!existingPostLike) {
         throw new Error("Post is already not liked");
       }
       await existingPostLike.remove();
-      post.like = (await Like.find({postId})).length;
+      post.like = (await Like.find({ postId })).length;
       await post.save();
-      return res.status(201).json({success: true});
+      return res.status(201).json({ success: true });
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
-
-
   },
-
 
   getPublicPostsByUserId: async (req, res) => {
     try {
-      const authorId = req.params.id
-      let posts = await Post.find({ accessModified: STATUS_PUBLIC, author: authorId })
-        .sort({ createdAt: -1 })
+      const authorId = req.params.id;
+      let posts = await Post.find({
+        accessModified: STATUS_PUBLIC,
+        author: authorId,
+      }).sort({ createdAt: -1 });
       return res.status(200).json({
         posts: posts,
       });
@@ -136,8 +134,10 @@ const postController = {
   getAllPostsByUserId: async (req, res) => {
     try {
       const userId = req.userId;
-      let posts = await Post.find({ author: userId }).populate('author')
-        .sort({ createdAt: -1 }).lean();
+      let posts = await Post.find({ author: userId })
+        .populate("author")
+        .sort({ createdAt: -1 })
+        .lean();
       if (userId) {
         await postController.setLiked(posts, userId);
       }
@@ -167,11 +167,11 @@ const postController = {
       let post = req.body;
       let userId = req.userId;
       post.author = userId;
-      await (await Post.create(post)).populate("author")
+      await (await Post.create(post)).populate("author");
       res.status(200).json({
         success: true,
         message: "Post created successfully.",
-        post: post
+        post: post,
       });
     } catch (error) {
       console.log(error);
@@ -239,7 +239,23 @@ const postController = {
         });
       }
 
-      res.json({
+      deletedPost.tagArray.forEach((tagId) => {
+        const tag = Tag.findOne({ _id: tagId });
+        let newPostArray = tag.postArray;
+        const checkExistedPost = newPostArray.find(
+          (id) => id == deletedPost._id
+        );
+        if (checkExistedPost) {
+          newPostArray = newPostArray.filter((tag) => tag != deletedPost._id);
+        }
+        Tag.updateOne(
+          { _id: tagId },
+          { postArray: newPostArray },
+          { new: true }
+        );
+      });
+
+      await res.json({
         success: true,
         message: "Post deleted successfully.",
         post: deletedPost,
@@ -256,9 +272,9 @@ const postController = {
     try {
       let id = req.params.id;
       let posts = await Post.find({ _id: id }).populate("author");
-        res.status(200).json({
-          posts,
-        });
+      res.status(200).json({
+        posts,
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
@@ -269,16 +285,19 @@ const postController = {
   },
   getPostsBySearch: async (req, res) => {
     const userId = req.userId;
-    const {searchQuery} = req.query;
+    const { searchQuery } = req.query;
     console.log(searchQuery);
     try {
       const title = new RegExp(searchQuery, "i");
-      let posts = await Post.find({title,author:userId}).sort({ createdAt: -1 }).populate('author').lean();
+      let posts = await Post.find({ title, author: userId })
+        .sort({ createdAt: -1 })
+        .populate("author")
+        .lean();
       if (userId) {
-        await postController.setLiked(posts, userId)
+        await postController.setLiked(posts, userId);
       }
       res.json({
-        posts: posts
+        posts: posts,
       });
     } catch (error) {
       res.status(404).json({ message: "Something went wrong" });
