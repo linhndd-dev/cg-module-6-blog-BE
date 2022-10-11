@@ -239,21 +239,22 @@ const postController = {
         });
       }
 
-      deletedPost.tagArray.forEach((tagId) => {
-        const tag = Tag.findOne({ _id: tagId });
-        let newPostArray = tag.postArray;
-        const checkExistedPost = newPostArray.find(
-          (id) => id == deletedPost._id
-        );
-        if (checkExistedPost) {
-          newPostArray = newPostArray.filter((tag) => tag != deletedPost._id);
-        }
-        Tag.updateOne(
-          { _id: tagId },
-          { postArray: newPostArray },
-          { new: true }
-        );
+      const tagArray = await Tag.find({
+        postArray: { $in: deletedPost._id.toString() },
       });
+      console.log("tagArray", tagArray);
+
+      // const deletedTags = await Tag.deleteMany({
+      //   postArray: { $in: deletedPost._id },
+      // });
+
+      // includedTags.forEach((tag) => {
+      //   tag.postArray.filter((postId) => {
+      //     postId != deletedPost._id;
+      //   });
+      // });
+
+      // await Tag.insertMany(includedTags);
 
       await res.json({
         success: true,

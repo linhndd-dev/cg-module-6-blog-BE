@@ -26,7 +26,6 @@ const tagController = {
 
       const tags = await Tag.find();
 
-      console.log("getAllTags", tags);
       return res.json({
         success: true,
         tags,
@@ -44,7 +43,6 @@ const tagController = {
     try {
       const { id } = req.params;
       const tag = await Tag.findOne({ _id: id });
-      console.log("getAllPostsByTagId", tag);
       return res.json({
         success: true,
         postArray: tag.postArray,
@@ -62,35 +60,49 @@ const tagController = {
     const { postId } = req.params;
     const { newTagName } = req.body;
     try {
-      let tag = await Tag.findOne({ title: newTagName });
+      let currentTag = await Tag.findOne({ title: newTagName });
+      const currentPost = await Post.findOne({ _id: postId });
 
-      if (tag) {
-        return res.json({
-          success: true,
-          message: "Tag already exists.",
+      if (currentTag) {
+        const TagExistedCondition = currentPost.tagArray.find(
+          (tag) => tag.toString() == currentTag._id.toString()
+        );
+
+        if (TagExistedCondition) {
+          return res.json({
+            success: true,
+            message: "This tag already exists in this post.",
+            TagExistedCondition,
+          });
+        } else {
+          const newPostArray = currentTag.postArray;
+          const checkExistedPost = newPostArray.find((id) => id == postId);
+          if (!checkExistedPost) {
+            newPostArray.push(postId);
+          }
+          await Tag.updateOne(
+            { title: newTagName },
+            { postArray: newPostArray }
+          );
+
+          const newTagArray = currentPost.tagArray;
+          newTagArray.push(currentTag._id);
+          await Post.updateOne({ _id: postId }, { tagArray: newTagArray });
+        }
+      } else {
+        const newTag = new Tag({
+          title: newTagName,
         });
-      }
+        await newTag.save();
 
-      const newTag = new Tag({
-        title: newTagName,
-      });
-      await newTag.save();
-      tag = newTag;
-
-      const newPostArray = tag.postArray;
-      const checkExistedPost = newPostArray.find((id) => id == postId);
-      if (!checkExistedPost) {
+        const newPostArray = newTag.postArray;
         newPostArray.push(postId);
-      }
-      await Tag.updateOne({ title: newTagName }, { postArray: newPostArray });
+        await Tag.updateOne({ title: newTagName }, { postArray: newPostArray });
 
-      const post = await Post.findOne({ _id: postId });
-      const newTagArray = post.tagArray;
-      const checkExistedTag = newTagArray.find((id) => id == tag._id);
-      if (!checkExistedTag) {
-        newTagArray.push(tag._id);
+        const newTagArray = currentPost.tagArray;
+        newTagArray.push(newTag._id);
+        await Post.updateOne({ _id: postId }, { tagArray: newTagArray });
       }
-      await Post.updateOne({ _id: postId }, { tagArray: newTagArray });
 
       return res.json({
         success: true,
