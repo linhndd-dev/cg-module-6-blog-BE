@@ -54,6 +54,8 @@ const commentController = {
                 }
             )
             await comment.save();
+            post.comment = (await Comment.find({postId})).length
+            await post.save();
             res.status(201).json({
                 message: "Comment created successfully",
                 comment: comment
@@ -82,6 +84,9 @@ const commentController = {
                 })
             }
             const deleteComment = await Comment.findByIdAndDelete(commentId);
+            const post = await Post.findOne({_id: comment.postId})
+            post.comment = (await Comment.find({postId:comment.postId})).length
+            await post.save();
             res.status(201).json({
                 message: "Delete comment successfully",
                 comment: deleteComment

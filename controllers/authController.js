@@ -240,7 +240,7 @@ const authController = {
 
         user.fullname = req.body.fullname || user.fullname
         user.email = req.body.email || user.email
-        user.phonenumber = req.body.phone || user.phonenumber
+        user.phoneNumber = req.body.phone || user.phoneNumber
         user.address = req.body.address || user.address
         user.avatar = req.body.avatar || user.avatar
 
