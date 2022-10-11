@@ -2,27 +2,9 @@ const Tag = require("../models/Tag");
 const Post = require("../models/Post");
 
 const tagController = {
-  deleteTagIfZero: async (req, res) => {
-    try {
-      const tags = Tag.deleteMany({ postArray: [] });
-
-      console.log("deleteTagIfZero", tags);
-      return res.json({
-        success: true,
-        deletedTagsIfZero: tags,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        success: false,
-        message: "Internal server error.",
-      });
-    }
-  },
-
   getAllTags: async (req, res) => {
     try {
-      this.deleteTagIfZero;
+      await Tag.deleteMany({ postArray: [] || [""] });
 
       const tags = await Tag.find();
 

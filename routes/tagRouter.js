@@ -7,7 +7,7 @@ router.get("/", tagController.getAllTags);
 router.get("/:id", tagController.getAllPostsByTagId);
 router.put("/add/:postId", verifyToken, tagController.addNewTagToPost);
 router.delete(
-  "/remove/:postId/:tagId",
+  "/remove/:tagId/:postId",
   verifyToken,
   tagController.removeTagFromPost
 );

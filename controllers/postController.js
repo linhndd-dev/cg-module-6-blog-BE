@@ -242,21 +242,24 @@ const postController = {
       const tagArray = await Tag.find({
         postArray: { $in: deletedPost._id.toString() },
       });
-      console.log("tagArray", tagArray);
 
-      // const deletedTags = await Tag.deleteMany({
-      //   postArray: { $in: deletedPost._id },
-      // });
+      await Tag.deleteMany({
+        postArray: { $in: deletedPost._id.toString() },
+      });
 
-      // includedTags.forEach((tag) => {
-      //   tag.postArray.filter((postId) => {
-      //     postId != deletedPost._id;
-      //   });
-      // });
+      const newTagArray = tagArray;
+      for (i = 0; i < newTagArray.length; i++) {
+        const newPostArray = newTagArray[i].postArray;
+        for (j = 0; j < newPostArray.length; j++) {
+          if (newPostArray[j].toString() == deletedPost._id.toString()) {
+            newPostArray.splice(j, 1);
+          }
+        }
+      }
 
-      // await Tag.insertMany(includedTags);
+      await Tag.insertMany(newTagArray);
 
-      await res.json({
+      res.json({
         success: true,
         message: "Post deleted successfully.",
         post: deletedPost,
