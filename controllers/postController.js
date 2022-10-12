@@ -194,7 +194,7 @@ const postController = {
       const user = await User.findById(userId)
 
       await (await Post.create(post)).populate("author");
-      user.totalPosts = (await Post.find({ userId })).length;
+      user.totalPosts = (await Post.find({ author: req.userId })).length;
       await user.save();
       res.status(200).json({
         success: true,
@@ -288,7 +288,7 @@ const postController = {
       }
 
       await Tag.insertMany(newTagArray);
-      user.totalPosts = (await Post.find({ userId: req.userId })).length;
+      user.totalPosts = (await Post.find({ author: req.userId })).length;
       await user.save();
       res.json({
         success: true,

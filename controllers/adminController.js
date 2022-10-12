@@ -58,7 +58,7 @@ const adminController = {
 
       const user = await User.findOne({ _id: deletedPost.author._id });
       const userId = user._id;
-      user.totalPosts = (await Post.find({ userId: userId })).length;
+      user.totalPosts = (await Post.find({ author: userId })).length;
       await user.save();
       const notification = new Notification({
         message: `The post with title *${deletedPost.title}* was deleted by Admin`,
@@ -84,11 +84,10 @@ const adminController = {
   getAllUsers: async (req, res) => {
     try {
       const users = await User.find().sort({ createdAt: -1 }).lean();
-      for (let i= 0;i<users.length;i++) {
-        users[i].totalPosts = (await Post.find({author:users[i]._id})).length
-        await User.findByIdAndUpdate({_id:users[i]._id},users[i],{new: true})
-      }
-      console.log(users[2]);
+      // for (let i= 0;i<users.length;i++) {
+      //   users[i].totalPosts = (await Post.find({author:users[i]._id})).length
+      //   await User.findByIdAndUpdate({_id:users[i]._id},users[i],{new: true})
+      // }
       return res.status(200).json({
         success: true,
         users: users,
