@@ -235,13 +235,12 @@ const authController = {
   },
 
   updateUser: async (req, res) => {
-    const user = await User.findByIdAndUpdate(req.body._id);
-    console.log(user);
+    const user = await User.findByIdAndUpdate(req.params.id);
     try {
       if (user) {
         user.fullname = req.body.fullname || user.fullname;
         user.email = req.body.email || user.email;
-        user.phoneNumber = req.body.phone || user.phoneNumber;
+        user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
         user.address = req.body.address || user.address;
         user.avatar = req.body.avatar || user.avatar;
 
