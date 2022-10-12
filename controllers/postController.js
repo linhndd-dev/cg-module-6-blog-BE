@@ -42,6 +42,29 @@ const postController = {
     }
   },
 
+  getRelatedPosts: async(req,res) => {
+    try {
+      const userId = req.userId;
+      let posts = await Post.find({ accessModified: STATUS_PUBLIC })
+        .populate("author")
+        .sort({ like: -1 })
+        .limit(3)
+        .lean();
+
+      if (userId) {
+        await postController.setLiked(posts, userId);
+      }
+      return res.status(200).json({
+        posts: posts,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error.",
+      });
+    }
+  },
+
   getUserLikedPosts: async (req, res) => {
     try {
       const likedId = req.params.id;
@@ -274,8 +297,20 @@ const postController = {
   },
   getMyPostsById: async (req, res) => {
     try {
+      const userId = req.userId;
       let id = req.params.id;
       let posts = await Post.find({ _id: id }).populate("author");
+      if (!userId && posts[0].accessModified === "Private") {
+        return res.status(401).json({
+          message: "You do not have permission to read this post"
+        })
+      }
+      if (userId && posts[0].accessModified === "Private" && userId !== posts[0].author._id) {
+        return res.status(401).json({
+          message: "You do not have permission to read this post"
+        })
+      }
+      console.log(posts[0]);
       res.status(200).json({
         posts,
       });

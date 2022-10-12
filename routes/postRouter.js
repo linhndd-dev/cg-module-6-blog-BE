@@ -7,9 +7,10 @@ const { verifyToken, optionallyVerifyToken } = require("../middlewares/auth");
 router.get("/search", verifyToken, postController.getPostsBySearch);
 
 router.get("/guest", optionallyVerifyToken, postController.getAllPublicPosts);
+router.get("/guest/relatedPosts", optionallyVerifyToken, postController.getRelatedPosts);
 router.get("/guest/author/:id", postController.getPublicPostsByUserId);
 router.get("/", verifyToken, postController.getAllPostsByUserId);
-router.get("/:id", postController.getMyPostsById);
+router.get("/:id",optionallyVerifyToken, postController.getMyPostsById);
 router.post("/", verifyToken, postController.createMyPost);
 router.put("/:id", verifyToken, postController.editMyPost);
 router.delete("/:id", verifyToken, postController.deleteMyPost);
