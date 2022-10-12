@@ -140,7 +140,7 @@ const authController = {
           idUser: user._id,
           username: user.username,
           avatar: user.avatar,
-          fullname: user.fullname
+          fullname: user.fullname,
         });
       } catch (error) {
         console.log(error);
@@ -173,8 +173,10 @@ const authController = {
           success: true,
           message: "User logged in successfully.",
           accessToken,
-          idUser: newUser._id,
-          username: newUser.username,
+          idUser: user._id,
+          username: user.username,
+          avatar: user.avatar,
+          fullname: user.fullname,
         });
       } else {
         try {
@@ -198,7 +200,7 @@ const authController = {
             idUser: user._id,
             username: user.username,
             avatar: user.avatar,
-            fullname: user.fullname
+            fullname: user.fullname,
           });
         } catch (error) {
           console.log(error);
@@ -218,46 +220,43 @@ const authController = {
   },
 
   profileUser: async (req, res) => {
-      const user = await User.findOne({_id: req.params.id})
-      try {
-        if(user) {
-          res.json({
-            success : true,
-            data: user,
-            message:''
-          })
-        }
-      }catch(error) {
-        console.log(error)
+    const user = await User.findOne({ _id: req.params.id });
+    try {
+      if (user) {
+        res.json({
+          success: true,
+          data: user,
+          message: "",
+        });
       }
+    } catch (error) {
+      console.log(error);
+    }
   },
 
   updateUser: async (req, res) => {
-    const user = await User.findByIdAndUpdate(req.body._id)
-    console.log(user)
-    try{
-      if(user) {
+    const user = await User.findByIdAndUpdate(req.body._id);
+    console.log(user);
+    try {
+      if (user) {
+        user.fullname = req.body.fullname || user.fullname;
+        user.email = req.body.email || user.email;
+        user.phoneNumber = req.body.phone || user.phoneNumber;
+        user.address = req.body.address || user.address;
+        user.avatar = req.body.avatar || user.avatar;
 
-        user.fullname = req.body.fullname || user.fullname
-        user.email = req.body.email || user.email
-        user.phoneNumber = req.body.phone || user.phoneNumber
-        user.address = req.body.address || user.address
-        user.avatar = req.body.avatar || user.avatar
-
-        const updateUser = await user.save()
-        res.json(
-          updateUser
-        )
-      }else {
+        const updateUser = await user.save();
+        res.json(updateUser);
+      } else {
         res.status(404).json({
-          success : false,
-          message : 'User does not exist'
-        })
+          success: false,
+          message: "User does not exist",
+        });
       }
-    } catch(error) {
-        console.log(error)
+    } catch (error) {
+      console.log(error);
     }
-  }
+  },
 };
 
 module.exports = authController;
