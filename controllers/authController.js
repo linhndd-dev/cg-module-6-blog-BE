@@ -256,6 +256,28 @@ const authController = {
       console.log(error);
     }
   },
+
+  resetPassword: async (req, res) => {
+    const user = await User.findByIdAndUpdate(req.params.id);
+    try {
+      const { password } = req.body;
+      console.log(password);
+        const hashedPassword = await argon2.hash(password);
+        user.password = hashedPassword;
+        console.log(user);
+        currentUser = await user.save();
+        return res.status(HTTP_STATUS_CODE_OK).json({
+          currentUser,
+          success: true,
+          message: "Reset password successfully.",
+        });
+    } catch (err) {
+      return res.status(HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error.",
+      });
+    }
+  },
 };
 
 module.exports = authController;
