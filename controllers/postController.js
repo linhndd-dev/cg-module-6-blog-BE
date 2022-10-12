@@ -305,12 +305,11 @@ const postController = {
           message: "You do not have permission to read this post"
         })
       }
-      if (userId && posts[0].accessModified === "Private" && userId !== posts[0].author._id) {
+      if (userId && posts[0].accessModified === "Private" && userId !== posts[0].author._id.toHexString()) {
         return res.status(401).json({
           message: "You do not have permission to read this post"
         })
       }
-      console.log(posts[0]);
       res.status(200).json({
         posts,
       });
