@@ -1,6 +1,7 @@
 const Like = require("../models/Like");
 const Post = require("../models/Post");
 const Tag = require("../models/Tag");
+const User = require("../models/User");
 
 const STATUS_PUBLIC = "Public";
 const STATUS_PRIVATE = "Private";
@@ -190,7 +191,11 @@ const postController = {
       let post = req.body;
       let userId = req.userId;
       post.author = userId;
+      const user = await User.findById(userId)
+
       await (await Post.create(post)).populate("author");
+      user.totalPosts = (await Post.find({ userId })).length;
+      await user.save();
       res.status(200).json({
         success: true,
         message: "Post created successfully.",
@@ -255,6 +260,8 @@ const postController = {
       const deletedPost = await Post.findOneAndDelete(postDeleteCondition);
 
       // User not authorised to update post or post not found
+
+      const user = await User.findById(req.userId)
       if (!deletedPost) {
         return res.status(401).json({
           success: false,
@@ -281,7 +288,8 @@ const postController = {
       }
 
       await Tag.insertMany(newTagArray);
-
+      user.totalPosts = (await Post.find({ userId: req.userId })).length;
+      await user.save();
       res.json({
         success: true,
         message: "Post deleted successfully.",

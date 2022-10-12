@@ -29,6 +29,10 @@ const UserSchema = new Schema({
   phoneNumber: {
     type: Number
   },
+  totalPosts: {
+    type: Number,
+    default: 0
+  },
   status: {
     type: String,
     default: "Active",
